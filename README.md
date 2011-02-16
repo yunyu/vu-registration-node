@@ -11,6 +11,13 @@ This script requires [Node.js](https://nodejs.org/en/), and the minimum supporte
 
 Then follow the usage instructions below for your shell.
 
+Finding class numbers
+==
+
+To find a class number, click the course name in your cart, and look at the upper left corner (underneath the description):
+
+![](https://i.imgur.com/nxVkT27.png)
+
 Usage
 ==
 
