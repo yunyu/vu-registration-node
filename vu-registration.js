@@ -18,7 +18,7 @@ function printUsage() {
         'node vu-registration.js register 0420:true,0069:false\n\n' + 
         '* Username and password should be set via the VUNET_ID and VUNET_PW environment variables\n' +
         '  (they are only used for savecookies)\n' +
-        '* The course ID is in the bottom left corner of the course description dialog\n' +
+        '* The course ID is in the top left corner of the course description dialog\n' +
         '* The boolean parameter in the course list is equivalent to "Waitlist If Full"'
     );
 }
@@ -37,7 +37,7 @@ function initRequestPromise() {
     var j = rp.jar(new FileCookieStore(cookieJarPath));
     rp = rp.defaults({
         jar: j,
-        headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:52.0) Gecko/20100101 Firefox/52.0'}
+        headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:52.0) Gecko/20100101 Firefox/52.0'}
     });
 }
 
@@ -99,7 +99,7 @@ function register(courseList) {
     }
     rp(queueEnrollBase)
     .then(body => Promise.resolve(JSON.parse(body)['jobId']))
-    .then(sleep(1750))
+    .then(sleep(2000))
     .then(jobId => rp('https://webapp.mis.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=' + jobId))
     .then(body => console.log(body));
 }
