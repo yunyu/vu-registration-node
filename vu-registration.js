@@ -63,7 +63,8 @@ function saveCookie(username, password) {
             followAllRedirects: true,
             form: {
                 'pf.username': username,
-                'pf.pass': password
+                'pf.pass': password,
+                'pf.ok': 'clicked'
             }
         })
     )
