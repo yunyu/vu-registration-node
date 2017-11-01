@@ -55,20 +55,15 @@ function saveCookie(username, password) {
         transform: cheerioTransform
     })
     .then($ => Promise.resolve({
-        action: $('form').attr('action'), 
-        lt: $('[name="lt"]').attr('value'),
-        _eventId: $('[name="_eventId"]').attr('value')
+        action: $('form').attr('action')
     }))
     .then(formData => rp.post({ 
-            uri: 'https://login.mis.vanderbilt.edu' + formData.action,
+            uri: 'https://sso.vanderbilt.edu' + formData.action,
             resolveWithFullResponse: true,
             followAllRedirects: true,
             form: {
-                'username': username,
-                'password': password,
-                'lt': formData.lt,
-                '_eventId': formData._eventId,
-                'submit': 'LOGIN'
+                'pf.username': username,
+                'pf.pass': password
             }
         })
     )
