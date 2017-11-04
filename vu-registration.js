@@ -26,9 +26,9 @@ function printUsage() {
 
 if (process.argv.length <= 2) {
     printUsage();
-} else if (process.argv[2] == 'savecookies') {
+} else if (process.argv[2] === 'savecookies') {
     saveCookie(process.env.VUNET_ID, process.env.VUNET_PW);
-} else if (process.argv[2] == 'register' && process.argv.length == 4) {
+} else if (process.argv[2] === 'register' && process.argv.length === 4) {
     register(jsonic(process.argv[3]));
 } else {
     printUsage();
