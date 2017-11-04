@@ -18,6 +18,7 @@ function printUsage() {
         'node vu-registration.js register 0420:true,0069:false\n\n' + 
         '* Username and password should be set via the VUNET_ID and VUNET_PW environment variables\n' +
         '  (they are only used for savecookies)\n' +
+        '* You can only register for courses that are already in your cart\n' +
         '* The course ID is in the top left corner of the course description dialog\n' +
         '* The boolean parameter in the course list is equivalent to "Waitlist If Full"'
     );
