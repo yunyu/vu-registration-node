@@ -15,7 +15,7 @@ function printUsage() {
     console.log(
         'Usage:\n' +
         'node vu-registration.js savecookies\n' +
-        'node vu-registration.js register 0420:true,0069:false\n\n' + 
+        'node vu-registration.js register 0420:true,0069:false\n\n' +
         '* Username and password should be set via the VUNET_ID and VUNET_PW environment variables\n' +
         '  (they are only used for savecookies)\n' +
         '* You can only register for courses that are already in your cart\n' +
@@ -58,7 +58,7 @@ function saveCookie(username, password) {
     .then($ => Promise.resolve({
         action: $('form').attr('action')
     }))
-    .then(formData => rp.post({ 
+    .then(formData => rp.post({
             uri: 'https://sso.vanderbilt.edu' + formData.action,
             resolveWithFullResponse: true,
             followAllRedirects: true,
@@ -98,5 +98,10 @@ function register(courseList) {
     .then(body => Promise.resolve(JSON.parse(body)['jobId']))
     .then(sleep(2000))
     .then(jobId => rp('https://webapp.mis.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=' + jobId))
-    .then(body => console.log(body));
+    .then(body => {
+        status = JSON.parse(body);
+        for (let index in status.enrollmentMessages) {
+           console.log(status.enrollmentMessages[index].detailedMessage);
+        }
+    })
 }
