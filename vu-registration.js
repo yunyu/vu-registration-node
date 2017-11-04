@@ -9,7 +9,7 @@ const sleep = require('sleep-promise');
 const cookieJarPath = 'cookies.json';
 const dataPath = 'data.json';
 
-var rp = require('request-promise');
+let rp = require('request-promise');
 
 function printUsage() {
     console.log(
@@ -35,7 +35,7 @@ if (process.argv.length <= 2) {
 }
 
 function initRequestPromise() {
-    var j = rp.jar(new FileCookieStore(cookieJarPath));
+    let j = rp.jar(new FileCookieStore(cookieJarPath));
     rp = rp.defaults({
         jar: j,
         headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:52.0) Gecko/20100101 Firefox/52.0'}
@@ -49,8 +49,8 @@ function saveCookie(username, password) {
         }
     });
     initRequestPromise();
-    var cheerioTransform = body => cheerio.load(body);
-    var commodoreId;
+    let cheerioTransform = body => cheerio.load(body);
+    let commodoreId;
     rp({
         uri: 'https://yes.vanderbilt.edu',
         transform: cheerioTransform
@@ -77,7 +77,7 @@ function saveCookie(username, password) {
         })
     })
     .then($ => {
-        var termCode = $('#selectedTerm').find('[selected="selected"]').attr('value');
+        let termCode = $('#selectedTerm').find('[selected="selected"]').attr('value');
         fs.writeFileSync(dataPath, JSON.stringify({'termCode': termCode, 'commodoreId': commodoreId}));
         console.log('Saved cookies for ID ' + commodoreId + ' with term code ' + termCode);
     });
@@ -85,10 +85,10 @@ function saveCookie(username, password) {
 
 function register(courseList) {
     initRequestPromise();
-    var data = JSON.parse(fs.readFileSync(dataPath));
-    var termCode = data['termCode'];
-    var queueEnrollBase = 'https://webapp.mis.vanderbilt.edu/more/StudentClass!queueEnroll.action?selectedTermCode=' + termCode;
-    var index = 0;
+    let data = JSON.parse(fs.readFileSync(dataPath));
+    let termCode = data['termCode'];
+    let queueEnrollBase = 'https://webapp.mis.vanderbilt.edu/more/StudentClass!queueEnroll.action?selectedTermCode=' + termCode;
+    let index = 0;
     for (let classNumber in courseList) {
         queueEnrollBase += '&enrollmentRequestItems%5B' + index + '%5D.classNumber=' + classNumber
             + '&enrollmentRequestItems%5B' + index + '%5D.waitList=' + courseList[classNumber].toString();
