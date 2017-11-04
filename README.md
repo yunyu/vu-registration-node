@@ -6,6 +6,6 @@ Install
 Usage
 ==
 
-    export VUNET_ID=vunetid
+    export VUNET_ID=liny19
     export VUNET_PW=password
     node vu-registration.js
