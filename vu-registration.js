@@ -99,9 +99,14 @@ function register(courseList) {
     .then(sleep(2000))
     .then(jobId => rp('https://webapp.mis.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=' + jobId))
     .then(body => {
-        status = JSON.parse(body);
-        for (let enrollmentMsg of status.enrollmentMessages) {
-           console.log(enrollmentMsg.detailedMessage);
+        try {
+            status = JSON.parse(body);
+            for (let enrollmentMsg of status.enrollmentMessages) {
+               console.log(enrollmentMsg.detailedMessage);
+            }
+        }
+        catch (e) {
+            console.log(body);
         }
     })
 }
