@@ -38,7 +38,7 @@ function initRequestPromise() {
     let j = rp.jar(new FileCookieStore(cookieJarPath));
     rp = rp.defaults({
         jar: j,
-        headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:52.0) Gecko/20100101 Firefox/52.0'}
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:52.0) Gecko/20100101 Firefox/52.0' }
     });
 }
 
@@ -55,10 +55,10 @@ function saveCookie(username, password) {
         uri: 'https://yes.vanderbilt.edu',
         transform: cheerioTransform
     })
-    .then($ => Promise.resolve({
-        action: $('form').attr('action')
-    }))
-    .then(formData => rp.post({
+        .then($ => Promise.resolve({
+            action: $('form').attr('action')
+        }))
+        .then(formData => rp.post({
             uri: 'https://sso.vanderbilt.edu' + formData.action,
             resolveWithFullResponse: true,
             followAllRedirects: true,
@@ -68,19 +68,19 @@ function saveCookie(username, password) {
                 'pf.ok': 'clicked'
             }
         })
-    )
-    .then(res => {
-        commodoreId = querystring.parse(res.request.uri.query)['commodoreId'];
-        return rp({
-            uri: 'https://webapp.mis.vanderbilt.edu/more/SearchClasses!input.action?commodoreIdToLoad=' + commodoreId,
-            transform: cheerioTransform
+        )
+        .then(res => {
+            commodoreId = querystring.parse(res.request.uri.query)['commodoreId'];
+            return rp({
+                uri: 'https://webapp.mis.vanderbilt.edu/more/SearchClasses!input.action?commodoreIdToLoad=' + commodoreId,
+                transform: cheerioTransform
+            })
         })
-    })
-    .then($ => {
-        let termCode = $('#selectedTerm').find('[selected="selected"]').attr('value');
-        fs.writeFileSync(dataPath, JSON.stringify({'termCode': termCode, 'commodoreId': commodoreId}));
-        console.log('Saved cookies for ID ' + commodoreId + ' with term code ' + termCode);
-    });
+        .then($ => {
+            let termCode = $('#selectedTerm').find('[selected="selected"]').attr('value');
+            fs.writeFileSync(dataPath, JSON.stringify({ 'termCode': termCode, 'commodoreId': commodoreId }));
+            console.log('Saved cookies for ID ' + commodoreId + ' with term code ' + termCode);
+        });
 }
 
 function register(courseList) {
@@ -95,18 +95,17 @@ function register(courseList) {
         index++;
     }
     rp(queueEnrollBase)
-    .then(body => Promise.resolve(JSON.parse(body)['jobId']))
-    .then(sleep(2000))
-    .then(jobId => rp('https://webapp.mis.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=' + jobId))
-    .then(body => {
-        try {
-            status = JSON.parse(body);
-            for (let enrollmentMsg of status.enrollmentMessages) {
-               console.log(enrollmentMsg.detailedMessage);
+        .then(body => Promise.resolve(JSON.parse(body)['jobId']))
+        .then(sleep(2000))
+        .then(jobId => rp('https://webapp.mis.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=' + jobId))
+        .then(body => {
+            try {
+                status = JSON.parse(body);
+                for (let enrollmentMsg of status.enrollmentMessages) {
+                    console.log(enrollmentMsg.detailedMessage);
+                }
+            } catch (e) {
+                console.log(body);
             }
-        }
-        catch (e) {
-            console.log(body);
-        }
-    })
+        });
 }
