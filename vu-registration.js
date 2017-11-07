@@ -95,8 +95,12 @@ function register(courseList) {
         index++;
     }
     rp(queueEnrollBase)
-        .then(body => Promise.resolve(JSON.parse(body)['jobId']))
-        .then(sleep(2000))
+        .then(body => {
+            const jobId = JSON.parse(body)['jobId'];
+            console.log(`Queued with job ID ${jobId}`);
+            return Promise.resolve(jobId);
+        })
+        .then(sleep(2500))
         .then(jobId => rp('https://webapp.mis.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=' + jobId))
         .then(body => {
             try {

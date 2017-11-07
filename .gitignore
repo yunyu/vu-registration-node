@@ -10,3 +10,4 @@ npm-debug.log
 
 cookies.json
 data.json
+*.sh
