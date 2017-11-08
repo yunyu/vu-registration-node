@@ -9,7 +9,7 @@ const sleep = require('sleep-promise');
 const cookieJarPath = 'cookies.json';
 const dataPath = 'data.json';
 
-let rp = require('request-promise');
+let rp = require('request-promise-native');
 
 function printUsage() {
     console.log(
