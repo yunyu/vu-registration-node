@@ -29,20 +29,11 @@ if (process.argv.length <= 2) {
 } else if (process.argv[2] === 'savecookies') {
     saveCookie(process.env.VUNET_ID, process.env.VUNET_PW)
         .then(res => {
-            fs.writeFileSync(dataPath, JSON.stringify(res));
-            console.log('Saved cookies for ID ' + res.commodoreId + ' with term code ' + res.termCode);
+            console.log(`Saved cookies for ID ${res.commodoreId} with term code ${res.termCode}`);
         });
 } else if (process.argv[2] === 'register' && process.argv.length === 4) {
     register(jsonic(process.argv[3]))
-        .then(res => {
-            try {
-                for (const enrollmentMsg of res.enrollmentMessages) {
-                    console.log(enrollmentMsg.detailedMessage);
-                }
-            } catch (e) {
-                console.log(res);
-            }
-        });
+        .then(res => res.enrollmentMessages.map(el => el.detailedMessage).forEach(el => console.log(el)));
 } else {
     printUsage();
 }
@@ -62,6 +53,7 @@ async function saveCookie(username, password) {
         }
     });
     initRequestPromise();
+
     const transform = body => cheerio.load(body);
     let $ = await rp({ uri: 'https://yes.vanderbilt.edu', transform });
     const formData = { action: $('form').attr('action') };
@@ -75,10 +67,14 @@ async function saveCookie(username, password) {
             'pf.ok': 'clicked'
         }
     });
+
     const commodoreId = querystring.parse(res.request.uri.query)['commodoreId'];
     $ = await rp({ uri: `https://webapp.mis.vanderbilt.edu/more/SearchClasses!input.action?commodoreIdToLoad=${commodoreId}`, transform });
     const termCode = $('#selectedTerm').find('[selected="selected"]').attr('value');
-    return { termCode, commodoreId };
+
+    const result = { termCode, commodoreId };
+    fs.writeFileSync(dataPath, JSON.stringify(result));
+    return result;
 }
 
 async function register(courseList) {
@@ -91,9 +87,16 @@ async function register(courseList) {
             + '&enrollmentRequestItems%5B' + index + '%5D.waitList=' + courseList[classNumber].toString();
         ++index;
     }
+
     const transform = body => JSON.parse(body);
     const body = await rp({ uri: queueEnrollBase, transform });
     console.log(`Queued with job ID ${body.jobId}`);
-    await sleep(2500);
-    return await rp({ uri: `https://webapp.mis.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=${body.jobId}`, transform });
+
+    let status = null;
+    await sleep(1000);
+    while (!status || status.jobStatus.status !== 'C') {
+        await sleep(750);
+        status = await rp({ uri: `https://webapp.mis.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=${body.jobId}`, transform });
+    }
+    return status;
 }

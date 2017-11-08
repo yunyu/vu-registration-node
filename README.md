@@ -3,6 +3,8 @@
 Install
 ==
 
+The minimum supported version of Node is 8.x (LTS release).
+
     npm install
 
 Usage
@@ -20,4 +22,4 @@ PowerShell:
     $env:VUNET_PW = "password"
     node vu-registration.js
 
-For additional usage instructions, run the script with no arguments.
+For complete usage instructions, run the script with no arguments.
