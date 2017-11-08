@@ -28,12 +28,12 @@ if (process.argv.length <= 2) {
     printUsage();
 } else if (process.argv[2] === 'savecookies') {
     saveCookie(process.env.VUNET_ID, process.env.VUNET_PW)
-        .then(res => {
-            console.log(`Saved cookies for ID ${res.commodoreId} with term code ${res.termCode}`);
-        });
+        .then(res => console.log(`Saved cookies for ID ${res.commodoreId} with term code ${res.termCode}`))
+        .catch(err => console.warn('Failed to log in, are your credentials properly set?'));
 } else if (process.argv[2] === 'register' && process.argv.length === 4) {
     register(jsonic(process.argv[3]))
-        .then(res => res.enrollmentMessages.map(el => el.detailedMessage).forEach(el => console.log(el)));
+        .then(res => res.enrollmentMessages.map(el => el.detailedMessage).forEach(el => console.log(el)))
+        .catch(err => console.warn('Failed to register, are the cookies saved?'));
 } else {
     printUsage();
 }
@@ -68,9 +68,13 @@ async function saveCookie(username, password) {
         }
     });
 
-    const commodoreId = querystring.parse(res.request.uri.query)['commodoreId'];
+    const commodoreId = querystring.parse(res.request.uri.query).commodoreId;
     $ = await rp({ uri: `https://webapp.mis.vanderbilt.edu/more/SearchClasses!input.action?commodoreIdToLoad=${commodoreId}`, transform });
     const termCode = $('#selectedTerm').find('[selected="selected"]').attr('value');
+
+    if (!termCode || !commodoreId) {
+        throw new Error();
+    }
 
     const result = { termCode, commodoreId };
     fs.writeFileSync(dataPath, JSON.stringify(result));
@@ -89,8 +93,8 @@ async function register(courseList) {
     }
 
     const transform = body => JSON.parse(body);
-    const body = await rp({ uri: queueEnrollBase, transform });
-    console.log(`Queued with job ID ${body.jobId}`);
+    const queueResult = await rp({ uri: queueEnrollBase, transform });
+    console.log(`Queued with job ID ${queueResult.jobId}`);
 
     let status = null;
     await sleep(1000);
