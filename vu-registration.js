@@ -28,11 +28,11 @@ if (process.argv.length <= 2) {
 } else if (process.argv[2] === 'savecookies') {
     saveCookie(process.env.VUNET_ID, process.env.VUNET_PW)
         .then(res => console.log(`Saved cookies for ID ${res.commodoreId} with term code ${res.termCode}`))
-        .catch(err => console.warn('Failed to log in, are your credentials properly set?'));
+        .catch(() => console.warn('Failed to log in, are your credentials properly set?'));
 } else if (process.argv[2] === 'register' && process.argv.length === 4) {
     register(jsonic(process.argv[3]))
         .then(res => res.enrollmentMessages.map(el => el.detailedMessage).forEach(el => console.log(el)))
-        .catch(err => console.warn('Failed to register, are the cookies saved?'));
+        .catch(() => console.warn('Failed to register, are the cookies saved?'));
 } else {
     printUsage();
 }
