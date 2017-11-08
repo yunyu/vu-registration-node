@@ -2,7 +2,6 @@ const fs = require('fs-extra');
 const querystring = require('querystring');
 const cheerio = require('cheerio');
 const FileCookieStore = require('tough-cookie-file-store');
-const CookieJar = require('tough-cookie').CookieJar;
 const jsonic = require('jsonic');
 const sleep = require('sleep-promise');
 
