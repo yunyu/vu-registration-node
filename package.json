@@ -5,6 +5,7 @@
   "main": "vu-registration.js",
   "dependencies": {
     "cheerio": "^0.22.0",
+    "fs-extra": "^4.0.2",
     "jsonic": "^0.3.0",
     "request": "^2.81.0",
     "request-promise-native": "^1.0.5",

@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 const querystring = require('querystring');
 const cheerio = require('cheerio');
 const FileCookieStore = require('tough-cookie-file-store');
@@ -47,11 +47,11 @@ function initRequestPromise() {
 }
 
 async function saveCookie(username, password) {
-    [cookieJarPath, dataPath].forEach(path => {
-        if (fs.existsSync(path)) {
-            fs.unlinkSync(path);
+    for (let path of [cookieJarPath, dataPath]) {
+        if (await fs.exists(path)) {
+            await fs.unlink(path);
         }
-    });
+    }
     initRequestPromise();
 
     const transform = body => cheerio.load(body);
@@ -77,13 +77,13 @@ async function saveCookie(username, password) {
     }
 
     const result = { termCode, commodoreId };
-    fs.writeFileSync(dataPath, JSON.stringify(result));
+    await fs.writeFile(dataPath, JSON.stringify(result));
     return result;
 }
 
 async function register(courseList) {
     initRequestPromise();
-    const data = JSON.parse(fs.readFileSync(dataPath));
+    const data = JSON.parse(await fs.readFile(dataPath));
     let queueEnrollBase = `https://webapp.mis.vanderbilt.edu/more/StudentClass!queueEnroll.action?selectedTermCode=${data.termCode}`;
     let index = 0;
     for (const classNumber in courseList) {
@@ -98,9 +98,9 @@ async function register(courseList) {
 
     let status = null;
     await sleep(1000);
-    while (!status || status.jobStatus.status !== 'C') {
+    while (!status || !status.enrollmentMessages) {
         await sleep(750);
-        status = await rp({ uri: `https://webapp.mis.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=${body.jobId}`, transform });
+        status = await rp({ uri: `https://webapp.mis.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=${queueResult.jobId}`, transform });
     }
     return status;
 }
