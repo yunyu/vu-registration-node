@@ -22,4 +22,4 @@ PowerShell:
     $env:VUNET_PW = "password"
     node vu-registration.js
 
-For complete usage instructions, run the script with no arguments.
+For complete usage instructions, run the script with no arguments. Be sure to run `node vu-registration.js savecookies` about 3 minutes before registration opens.
