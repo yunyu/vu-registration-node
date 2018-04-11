@@ -5,23 +5,29 @@
 Install
 ==
 
-The minimum supported version of Node is 8.x (LTS release).
+This script requires [Node.js](https://nodejs.org/en/), and the minimum supported version is 8.x (LTS release). First `cd` into the script directory, and then run:
 
     npm install
+
+Then follow the usage instructions below for your shell.
 
 Usage
 ==
 
 Bash:
 
-    export VUNET_ID='liny19'
-    export VUNET_PW='password'
-    node vu-registration.js
+```bash
+export VUNET_ID='liny19'
+export VUNET_PW='password'
+node vu-registration.js
+```
 
 PowerShell:
 
-    $env:VUNET_ID = "liny19"
-    $env:VUNET_PW = "password"
-    node vu-registration.js
+```powershell
+$env:VUNET_ID = "liny19"
+$env:VUNET_PW = "password"
+node vu-registration.js
+```
 
-For complete usage instructions, run the script with no arguments. Be sure to run `node vu-registration.js savecookies` about 3 minutes before registration opens.
+For complete usage instructions, run `node vu-registration.js` with no arguments. Be sure to run `node vu-registration.js savecookies` about 3 minutes before registration opens.
