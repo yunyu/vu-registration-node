@@ -11,7 +11,7 @@ You need to select the appropriate "career" ahead of time for each course. YES p
 3. Open the Chrome/Firefox/whatever console, usually you can get to it by pressing F12 on Windows or right clicking somewhere on the page that lets you right click and hitting "Inspect Element", then clicking the console tab:
 ![](https://i.imgur.com/FtbPOlK.png)
 
-4. Copy and paste this code verbatim (do not change anything) into the console: `document.getElementById('editClassSectionForm_fields_careerCode').disabled = null`
+4. Copy and paste this code verbatim (do not change anything) into the console: `document.getElementById('editClassSectionForm_fields_careerCode').removeAttribute('disabled')`
 
 5. Select the appropriate career, and click save
 
