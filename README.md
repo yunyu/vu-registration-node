@@ -19,7 +19,8 @@ Bash:
 ```bash
 export VUNET_ID='liny19'
 export VUNET_PW='password'
-node vu-registration.js
+node vu-registration.js savecookies
+node vu-registration.js register 0049:true,0050:true
 ```
 
 PowerShell:
@@ -27,7 +28,9 @@ PowerShell:
 ```powershell
 $env:VUNET_ID = "liny19"
 $env:VUNET_PW = "password"
-node vu-registration.js
+node vu-registration.js savecookies
+# The second parameter needs to be quoted in PowerShell
+node vu-registration.js register "0049:true,0050:true"
 ```
 
 For complete usage instructions, run `node vu-registration.js` with no arguments. Be sure to run `node vu-registration.js savecookies` about 3 minutes before registration opens.
