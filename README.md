@@ -41,3 +41,8 @@ node vu-registration.js register "0049:true,0050:true"
 ```
 
 For complete usage instructions, run `node vu-registration.js` with no arguments. Be sure to run `node vu-registration.js savecookies` about 3 minutes before registration opens.
+
+Credits
+==
+Winston Du for developing registration method
+Yunyu Lin for user interface and node project development
