@@ -1,4 +1,4 @@
-**IT IS NOT IN YOUR INTEREST TO SHARE THIS SCRIPT. IF YOU DO, I WILL ~~PERSONALLY~~ HAVE SOMEONE BEAT YOU UP. - Yunyu **
+**IT IS NOT IN YOUR INTEREST TO SHARE THIS SCRIPT. IF YOU DO, I WILL ~~PERSONALLY~~ HAVE SOMEONE BEAT YOU UP. -Yunyu**
 
 *If you are enrolled in a graduate program, please follow the [graduate instructions](https://github.com/yunyu/vu-registration-node/blob/master/GRAD_INSTRUCTIONS.md), and then return to this document.*
 
