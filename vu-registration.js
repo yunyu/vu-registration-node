@@ -1,7 +1,7 @@
 const fs = require('fs-extra');
 const querystring = require('querystring');
 const cheerio = require('cheerio');
-const FileCookieStore = require('tough-cookie-file-store');
+const tough = require('tough-cookie');
 const jsonic = require('jsonic');
 const sleep = require('sleep-promise');
 
@@ -19,7 +19,7 @@ function printUsage() {
             '  (use your VUnet ID, NOT your commodore ID)\n' +
             '* You can only register for courses that are already in your cart\n' +
             '* The course ID is in the top left corner of the course description dialog\n' +
-            '* The boolean parameter in the course list is equivalent to "Waitlist If Full"'
+            '* The boolean parameter in the course list is equivalent to "Waitlist If Full"',
     );
 }
 
@@ -31,35 +31,61 @@ if (process.argv.length <= 2) {
             console.log(
                 `Saved cookies for ID ${res.commodoreId} with term code ${
                     res.termCode
-                }`
-            )
+                }`,
+            ),
         )
-        .catch(() =>
-            console.warn('Failed to log in, are your credentials properly set?')
+        .catch(e =>
+            console.warn(
+                'Failed to log in, are your credentials properly set?' + e,
+            ),
         );
 } else if (process.argv[2] === 'register' && process.argv.length === 4) {
     register(jsonic(process.argv[3]))
         .then(res =>
             res.enrollmentMessages
                 .map(el => el.detailedMessage)
-                .forEach(el => console.log(el))
+                .forEach(el => console.log(el)),
         )
-        .catch(() =>
-            console.warn('Failed to register, are the cookies saved?')
+        .catch(e =>
+            console.warn('Failed to register, are the cookies saved?' + e),
         );
 } else {
     printUsage();
 }
 
+const defaultJar = rp.jar();
+
 function initRequestPromise() {
-    const j = rp.jar(new FileCookieStore(cookieJarPath));
-    rp = rp.defaults({
-        jar: j,
-        headers: {
-            'User-Agent':
-                'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:52.0) Gecko/20100101 Firefox/52.0'
-        }
-    });
+    if (fs.existsSync(cookieJarPath)) {
+        const fileJar = rp.jar();
+        fileJar._jar = tough.CookieJar.deserializeSync(
+            JSON.parse(fs.readFileSync(cookieJarPath)),
+        );
+        fileJar.setCookie = function(cookieOrStr, uri, options) {
+            return fileJar._jar.setCookieSync(cookieOrStr, uri, options || {});
+        };
+        fileJar.getCookieString = function(uri) {
+            return fileJar._jar.getCookieStringSync(uri);
+        };
+        fileJar.getCookies = function(uri) {
+            return fileJar._jar.getCookiesSync(uri);
+        };
+        rp = rp.defaults({
+            jar: fileJar,
+            headers: {
+                'User-Agent':
+                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:52.0) Gecko/20100101 Firefox/52.0',
+            },
+        });
+    } else {
+        rp = rp.defaults({
+            jar: defaultJar,
+            headers: {
+                'User-Agent':
+                    'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:52.0) Gecko/20100101 Firefox/52.0',
+            },
+        });
+    }
 }
 
 async function saveCookie(username, password) {
@@ -69,45 +95,52 @@ async function saveCookie(username, password) {
         }
     }
     initRequestPromise();
-
     const transform = body => cheerio.load(body);
-    let $ = await rp({ uri: 'https://yes.vanderbilt.edu', transform });
+    let $ = await rp({
+        uri: 'https://acad.app.vanderbilt.edu/student-search/Entry.action',
+        transform,
+    });
     const formData = { action: $('form').attr('action') };
-    const res = await rp.post({
+
+    const loginRes = await rp.post({
         uri: `https://sso.vanderbilt.edu${formData.action}`,
         resolveWithFullResponse: true,
         followAllRedirects: true,
         form: {
             'pf.username': username,
             'pf.pass': password,
-            'pf.ok': 'clicked'
-        }
+            'pf.ok': 'clicked',
+            'pf.cancel': '',
+        },
     });
 
-    const commodoreId = querystring.parse(res.request.uri.query).commodoreId;
+    const commodoreId = querystring.parse(loginRes.request.uri.query)
+        .commodoreId;
     $ = await rp({
-        uri: `https://webapp.mis.vanderbilt.edu/more/SearchClasses!input.action?commodoreIdToLoad=${
-            commodoreId
-        }`,
-        transform
+        uri: `https://acad.app.vanderbilt.edu/more/SearchClasses!input.action?commodoreIdToLoad=${commodoreId}`,
+        transform,
     });
     const termCode = $('#selectedTerm')
         .find('[selected="selected"]')
         .attr('value');
 
     if (!termCode || !commodoreId) {
-        throw new Error();
+        throw new Error(termCode + ' ' + commodoreId);
     }
 
     const result = { termCode, commodoreId };
     await fs.writeFile(dataPath, JSON.stringify(result));
+    await fs.writeFile(
+        cookieJarPath,
+        JSON.stringify(defaultJar._jar.serializeSync()),
+    );
     return result;
 }
 
 async function register(courseList) {
     initRequestPromise();
     const data = JSON.parse(await fs.readFile(dataPath));
-    let queueEnrollBase = `https://webapp.mis.vanderbilt.edu/more/StudentClass!queueEnroll.action?selectedTermCode=${
+    let queueEnrollBase = `https://acad.app.vanderbilt.edu/more/StudentClass!queueEnroll.action?selectedTermCode=${
         data.termCode
     }`;
     let index = 0;
@@ -133,10 +166,10 @@ async function register(courseList) {
     while (!status || !status.enrollmentMessages) {
         await sleep(750);
         status = await rp({
-            uri: `https://webapp.mis.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=${
+            uri: `https://acad.app.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=${
                 queueResult.jobId
             }`,
-            transform
+            transform,
         });
     }
     return status;
