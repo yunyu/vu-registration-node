@@ -29,9 +29,7 @@ if (process.argv.length <= 2) {
     saveCookie(process.env.VUNET_ID, process.env.VUNET_PW)
         .then(res =>
             console.log(
-                `Saved cookies for ID ${res.commodoreId} with term code ${
-                    res.termCode
-                }`,
+                `Saved cookies for ID ${res.commodoreId} with term code ${res.termCode}`,
             ),
         )
         .catch(e =>
@@ -103,7 +101,7 @@ async function saveCookie(username, password) {
     const formData = { action: $('form').attr('action') };
 
     const loginRes = await rp.post({
-        uri: `https://sso.vanderbilt.edu${formData.action}`,
+        uri: `https://sso-login.vanderbilt.edu${formData.action}`,
         resolveWithFullResponse: true,
         followAllRedirects: true,
         form: {
@@ -140,9 +138,7 @@ async function saveCookie(username, password) {
 async function register(courseList) {
     initRequestPromise();
     const data = JSON.parse(await fs.readFile(dataPath));
-    let queueEnrollBase = `https://acad.app.vanderbilt.edu/more/StudentClass!queueEnroll.action?selectedTermCode=${
-        data.termCode
-    }`;
+    let queueEnrollBase = `https://acad.app.vanderbilt.edu/more/StudentClass!queueEnroll.action?selectedTermCode=${data.termCode}`;
     let index = 0;
     for (const classNumber in courseList) {
         queueEnrollBase +=
@@ -166,9 +162,7 @@ async function register(courseList) {
     while (!status || !status.enrollmentMessages) {
         await sleep(750);
         status = await rp({
-            uri: `https://acad.app.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=${
-                queueResult.jobId
-            }`,
+            uri: `https://acad.app.vanderbilt.edu/more/StudentClass!checkStatus.action?jobId=${queueResult.jobId}`,
             transform,
         });
     }
